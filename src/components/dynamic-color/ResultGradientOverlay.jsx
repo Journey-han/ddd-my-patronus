@@ -123,6 +123,7 @@ function ResultGradientOverlay({
     if (!canvasContainerRef.current) return;
 
     const container = canvasContainerRef.current;
+    const containerWidth = container.offsetWidth || window.innerWidth;
     const containerHeight = container.offsetHeight || window.innerHeight * 0.3;
 
     /** Three.js 씬 초기화 */
@@ -130,14 +131,14 @@ function ResultGradientOverlay({
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
-    renderer.setSize(window.innerWidth, containerHeight);
+    renderer.setSize(containerWidth, containerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
     const uniforms = {
       uTime: { value: 0 },
       uScrollProgress: { value: 0 },
-      uResolution: { value: new THREE.Vector2(window.innerWidth, containerHeight) },
+      uResolution: { value: new THREE.Vector2(containerWidth, containerHeight) },
       uGrainIntensity: { value: isGrain ? grainIntensity : 0 },
     };
     uniformsRef.current = uniforms;
@@ -169,9 +170,10 @@ function ResultGradientOverlay({
 
     /** 리사이즈 대응 */
     const handleResize = () => {
+      const newWidth = container.offsetWidth || window.innerWidth;
       const newHeight = container.offsetHeight || window.innerHeight * 0.3;
-      renderer.setSize(window.innerWidth, newHeight);
-      uniforms.uResolution.value.set(window.innerWidth, newHeight);
+      renderer.setSize(newWidth, newHeight);
+      uniforms.uResolution.value.set(newWidth, newHeight);
     };
 
     window.addEventListener('scroll', updateScrollTarget, { passive: true });
@@ -217,11 +219,18 @@ function ResultGradientOverlay({
         top: 0,
         left: 0,
         right: 0,
+        width: '100%',
         height: height,
         pointerEvents: 'none',
         zIndex: 0,
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(12px)',
+        overflow: 'hidden',
+        '& canvas': {
+          width: '100% !important',
+          height: '100% !important',
+          display: 'block',
+        },
         ...sx,
       }}
     />
