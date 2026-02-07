@@ -49,8 +49,8 @@ export const RESULTS = {
         hogwartsHouse: "그리핀도르",
         famousMatch: "해리 포터 — 사랑과 용기로 어둠에 맞선 소년",
         advice: "가끔은 지키는 것을 내려놓아도 괜찮아요. 당신도 누군가에게 지켜받을 자격이 있습니다.",
-        image: "/src/assets/images/patronus-stag.png",
-        video: "/src/assets/video/result_stag.mp4"
+        image: "/images/patronus_stag.png",
+        video: "/video/result_stag.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -79,8 +79,8 @@ export const RESULTS = {
         hogwartsHouse: "후플푸프",
         famousMatch: "세베루스 스네이프 — 평생을 바친 변치 않는 사랑",
         advice: "누군가를 사랑하는 만큼 자신도 사랑해주세요. 당신의 빛은 먼저 당신을 비춰야 합니다.",
-        image: "/src/assets/images/patronus-doe.png",
-        video: "/src/assets/video/result_doe.mp4"
+        image: "/images/patronus_doe.png",
+        video: "/video/result_doe.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -109,8 +109,8 @@ export const RESULTS = {
         hogwartsHouse: "래번클로",
         famousMatch: "헤르미온느 그레인저 — 명석함과 따뜻함을 겸비한 마법사",
         advice: "가끔은 웃음 뒤에 숨기지 말고, 당신의 진심을 그대로 보여줘도 괜찮아요.",
-        image: "/src/assets/images/patronus-otter.png",
-        video: "/src/assets/video/result_otter.mp4"
+        image: "/images/patronus_otter.png",
+        video: "/video/result_otter.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -139,8 +139,8 @@ export const RESULTS = {
         hogwartsHouse: "슬리데린",
         famousMatch: "뉴트 스캐맨더 — 자유롭고 독자적인 시선의 마법생물학자",
         advice: "혼자서도 충분하지만, 누군가와 함께하면 더 먼 곳까지 갈 수 있어요.",
-        image: "/src/assets/images/patronus-fox.png",
-        video: "/src/assets/video/result_fox.mp4"
+        image: "/images/patronus_fox.png",
+        video: "/video/result_fox.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -169,8 +169,8 @@ export const RESULTS = {
         hogwartsHouse: "래번클로",
         famousMatch: "미네르바 맥고나걸 — 냉철하지만 내면에 깊은 애정을 품은 마법사",
         advice: "당신의 벽 너머에도 따뜻한 세상이 있어요. 가끔은 문을 열어두세요.",
-        image: "/src/assets/images/patronus-cat.png",
-        video: "/src/assets/video/result_cat.mp4"
+        image: "/images/patronus_cat.png",
+        video: "/video/result_cat.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -199,8 +199,8 @@ export const RESULTS = {
         hogwartsHouse: "후플푸프",
         famousMatch: "론 위즐리 — 웃음과 우정으로 곁을 지키는 충직한 동료",
         advice: "당신이 주는 웃음은 마법이에요. 하지만 가끔은 혼자 쉬어도 괜찮습니다.",
-        image: "/src/assets/images/patronus-penguin.png",
-        video: "/src/assets/video/result_penguin.mp4"
+        image: "/images/patronus_penguin.png",
+        video: "/video/result_penguin.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -229,8 +229,8 @@ export const RESULTS = {
         hogwartsHouse: "후플푸프",
         famousMatch: "알버스 덤블도어 — 깊은 지혜와 사랑으로 세상을 이끈 마법사",
         advice: "당신의 깊이는 소중한 재능이에요. 하지만 수면 위로 올라와 숨 쉬는 것도 잊지 마세요.",
-        image: "/src/assets/images/patronus-whale.png",
-        video: "/src/assets/video/result_whale.mp4"
+        image: "/images/patronus_whale.png",
+        video: "/video/result_whale.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -259,8 +259,8 @@ export const RESULTS = {
         hogwartsHouse: "후플푸프",
         famousMatch: "네빌 롱바텀 — 조용하지만 결정적 순간에 빛나는 용기",
         advice: "가시를 내리고 부드러운 면을 보여주는 것도 용기예요. 당신은 충분히 안전합니다.",
-        image: "/src/assets/images/patronus-hedgehog.png",
-        video: "/src/assets/video/result_hedgehog.mp4"
+        image: "/images/patronus_hedgehog.png",
+        video: "/video/result_hedgehog.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -289,8 +289,8 @@ export const RESULTS = {
         hogwartsHouse: "그리핀도르",
         famousMatch: "루나 러브굿 — 남다른 시선으로 세상의 숨겨진 아름다움을 보는 마법사",
         advice: "당신의 밝은 마음은 주변을 따뜻하게 해요. 그 빛을 절대 잃지 마세요.",
-        image: "/src/assets/images/patronus-rabbit.png",
-        video: "/src/assets/video/result_rabbit.mp4"
+        image: "/images/patronus_rabbit.png",
+        video: "/video/result_rabbit.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -319,8 +319,8 @@ export const RESULTS = {
         hogwartsHouse: "슬리데린",
         famousMatch: "킹슬리 섀클볼트 — 냉정한 판단력과 정의감을 갖춘 오러",
         advice: "때로는 높은 곳에서 내려와 곁에 있는 사람들의 눈높이를 맞춰보세요.",
-        image: "/src/assets/images/patronus-hawk.png",
-        video: "/src/assets/video/result_hawk.mp4"
+        image: "/images/patronus_hawk.png",
+        video: "/video/result_hawk.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -349,8 +349,8 @@ export const RESULTS = {
         hogwartsHouse: "그리핀도르",
         famousMatch: "시리우스 블랙 — 친구를 위해 모든 것을 건 충직한 영혼",
         advice: "당신의 충성심은 아름답지만, 스스로를 잃지 않는 것도 중요해요.",
-        image: "/src/assets/images/patronus-wolf.png",
-        video: "/src/assets/video/result_wolf.mp4"
+        image: "/images/patronus_wolf.png",
+        video: "/video/result_wolf.mp4"
     },
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -379,8 +379,8 @@ export const RESULTS = {
         hogwartsHouse: "그리핀도르",
         famousMatch: "알버스 덤블도어 — 실패와 후회를 지혜로 승화시킨 위대한 마법사",
         advice: "다시 일어서는 것은 당신의 위대한 재능이에요. 하지만 쉬어가는 것도 포기가 아닙니다.",
-        image: "/src/assets/images/patronus-phoenix.png",
-        video: "/src/assets/video/result_phoenix.mp4"
+        image: "/images/patronus_phoenix.png",
+        video: "/video/result_phoenix.mp4"
     },
 };
 

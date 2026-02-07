@@ -20,7 +20,7 @@ export const Default = {
 export const WithVideo = {
   render: () => (
     <PatronusLoading
-      videoSrc="/src/assets/video/loading.mp4"
+      videoSrc="/video/loading.mp4"
       onScrollEnd={() => console.log('Loading scroll ended')}
     />
   ),

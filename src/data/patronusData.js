@@ -125,7 +125,7 @@ export const patronusList = [
     traits: ['brave', 'leader', 'protect'],
     description: '고귀하고 용감한 수호자. 위기의 순간 누구보다 먼저 앞에 서는 당신의 수사슴은 강인한 의지와 따뜻한 마음을 상징합니다.',
     quote: '고귀하고 용감한 수호자',
-    video: '/src/assets/video/result_stag.mp4',
+    video: '/video/result_stag.mp4',
   },
   {
     id: 2,
@@ -135,7 +135,7 @@ export const patronusList = [
     traits: ['playful', 'creative', 'adapt'],
     description: '장난기 넘치는 빛의 친구. 어떤 상황에서도 유연하게 적응하며 주변을 밝게 만드는 당신의 수달은 창의적인 영혼을 대변합니다.',
     quote: '장난기 넘치는 빛의 친구',
-    video: '/src/assets/video/result_otter.mp4',
+    video: '/video/result_otter.mp4',
   },
   {
     id: 3,
@@ -145,7 +145,7 @@ export const patronusList = [
     traits: ['loyal', 'intuitive', 'protect'],
     description: '어둠 속에서 곁을 지키는 그림자. 본능적인 직감과 깊은 충성심을 가진 당신의 늑대는 진정한 수호자의 상징입니다.',
     quote: '어둠 속에서 곁을 지키는 그림자',
-    video: '/src/assets/video/result_wolf.mp4',
+    video: '/video/result_wolf.mp4',
   },
   {
     id: 4,
@@ -155,7 +155,7 @@ export const patronusList = [
     traits: ['graceful', 'calm', 'devote'],
     description: '고요한 숲의 우아한 정령. 헌신적이고 평화로운 당신의 암사슴은 깊은 사랑과 부드러운 강인함을 상징합니다.',
     quote: '고요한 숲의 우아한 정령',
-    video: '/src/assets/video/result_doe.mp4',
+    video: '/video/result_doe.mp4',
   },
   {
     id: 5,
@@ -165,7 +165,7 @@ export const patronusList = [
     traits: ['clever', 'creative', 'adapt'],
     description: '어떤 상황도 빠져나가는 영리한 빛. 기지와 창의력으로 가득한 당신의 여우는 지혜로운 생존자의 상징입니다.',
     quote: '어떤 상황도 빠져나가는 영리한 빛',
-    video: '/src/assets/video/result_fox.mp4',
+    video: '/video/result_fox.mp4',
   },
   {
     id: 6,
@@ -175,7 +175,7 @@ export const patronusList = [
     traits: ['free', 'insight', 'independent'],
     description: '가장 높은 곳에서 모든 것을 보는 눈. 자유로운 영혼과 날카로운 통찰력을 가진 당신의 매는 하늘의 지배자입니다.',
     quote: '가장 높은 곳에서 모든 것을 보는 눈',
-    video: '/src/assets/video/result_hawk.mp4',
+    video: '/video/result_hawk.mp4',
   },
   {
     id: 7,
@@ -185,7 +185,7 @@ export const patronusList = [
     traits: ['independent', 'intuitive', 'mysterious'],
     description: '고요히 곁을 지키는 신비로운 존재. 독립적이면서도 직관적인 당신의 고양이는 신비로운 동반자입니다.',
     quote: '고요히 곁을 지키는 신비로운 존재',
-    video: '/src/assets/video/result_cat.mp4',
+    video: '/video/result_cat.mp4',
   },
   {
     id: 8,
@@ -195,7 +195,7 @@ export const patronusList = [
     traits: ['protect', 'patient', 'warm'],
     description: '작지만 강인한 수호자. 따뜻한 마음을 감춘 채 묵묵히 곁을 지키는 당신의 고슴도치는 진정한 보호자입니다.',
     quote: '작지만 강인한 수호자',
-    video: '/src/assets/video/result_hedgehog.mp4',
+    video: '/video/result_hedgehog.mp4',
   },
   {
     id: 9,
@@ -205,7 +205,7 @@ export const patronusList = [
     traits: ['social', 'loyal', 'resilient'],
     description: '극한의 환경에서도 함께하는 동료. 사교적이고 충성스러운 당신의 펭귄은 공동체의 힘을 상징합니다.',
     quote: '극한의 환경에서도 함께하는 동료',
-    video: '/src/assets/video/result_penguin.mp4',
+    video: '/video/result_penguin.mp4',
   },
   {
     id: 10,
@@ -215,7 +215,7 @@ export const patronusList = [
     traits: ['agile', 'alert', 'hope'],
     description: '빠르고 기민한 희망의 상징. 민첩함과 경계심으로 위험을 피하는 당신의 토끼는 새로운 시작을 의미합니다.',
     quote: '빠르고 기민한 희망의 상징',
-    video: '/src/assets/video/result_rabbit.mp4',
+    video: '/video/result_rabbit.mp4',
   },
   {
     id: 11,
@@ -225,7 +225,7 @@ export const patronusList = [
     traits: ['wise', 'calm', 'mysterious'],
     description: '깊은 바다의 현자. 고요하고 신비로운 당신의 고래는 깊은 지혜와 내면의 평화를 상징합니다.',
     quote: '깊은 바다의 현자',
-    video: '/src/assets/video/result_whale.mp4',
+    video: '/video/result_whale.mp4',
   },
 ];
 

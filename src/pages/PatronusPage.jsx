@@ -40,7 +40,7 @@ function PatronusPage() {
     >
       {/* ① 히어로 섹션 */}
       <PatronusHero
-        videoSrc="/src/assets/video/main_hero.mp4"
+        videoSrc="/video/main_hero.mp4"
         onScrollEnd={handleHeroEnd}
       />
 
@@ -55,7 +55,7 @@ function PatronusPage() {
       {(currentSection === 'loading' || currentSection === 'result') && (
         <Box ref={loadingRef}>
           <PatronusLoading
-            videoSrc="/src/assets/video/loading.mp4"
+            videoSrc="/video/loading.mp4"
             onScrollEnd={handleLoadingEnd}
           />
         </Box>

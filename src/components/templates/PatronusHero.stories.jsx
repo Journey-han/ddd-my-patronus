@@ -20,7 +20,7 @@ export const Default = {
 export const WithVideo = {
   render: () => (
     <PatronusHero
-      videoSrc="/src/assets/video/main_hero.mp4"
+      videoSrc="/video/main_hero.mp4"
       onScrollEnd={() => console.log('Hero scroll ended')}
     />
   ),
