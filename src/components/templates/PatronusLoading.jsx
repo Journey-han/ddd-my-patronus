@@ -124,7 +124,7 @@ function PatronusLoading({
       ref={sectionRef}
       sx={{
         position: 'relative',
-        height: '400vh',
+        height: '700vh', // 영상이 충분히 보이도록 스크롤 구간 확대
         ...sx,
       }}
     >

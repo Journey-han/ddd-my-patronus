@@ -246,29 +246,16 @@ function PatronusResult({
               position: 'relative',
               width: '100%',
               maxWidth: { xs: '100%', sm: 500, md: 600 },
-              maxHeight: { xs: '90vh', sm: '88vh', md: '85vh' },
+              maxHeight: '80vh',
               backgroundColor: 'rgba(10, 10, 18, 0.5)',
               backdropFilter: 'blur(1px)',
               borderRadius: '0px',
-              overflowY: 'auto',
-              overflowX: 'hidden',
+              overflow: 'hidden',
               px: { xs: 2.5, sm: 3, md: 5 },
               py: { xs: 4, md: 5 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              '&::-webkit-scrollbar': {
-                width: '4px',
-              },
-              '&::-webkit-scrollbar-track': {
-                background: 'transparent',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: 'rgba(135, 206, 235, 0.3)',
-                borderRadius: '4px',
-              },
-              // iOS 사파리 스크롤 개선
-              WebkitOverflowScrolling: 'touch',
             }}
           >
             {/* Slide 1: Emoji & Rarity */}
