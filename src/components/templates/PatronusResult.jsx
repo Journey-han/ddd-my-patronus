@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -55,6 +55,48 @@ function PatronusResult({
   // 스크러빙 구간: 0-25%, 결과 콘텐츠 구간: 25-100%
   const SCRUB_END = 0.25;
 
+  // 부드러운 비디오 스크러빙을 위한 상태
+  const targetTimeRef = useRef(0);
+  const currentTimeRef = useRef(0);
+  const rafIdRef = useRef(null);
+
+  // lerp 함수
+  const lerp = useCallback((start, end, factor) => {
+    return start + (end - start) * factor;
+  }, []);
+
+  // 부드러운 스크러빙 애니메이션 프레임
+  useEffect(() => {
+    const updateFrame = () => {
+      if (!videoRef.current || !videoRef.current.duration || isVideoComplete) {
+        rafIdRef.current = requestAnimationFrame(updateFrame);
+        return;
+      }
+
+      const diff = Math.abs(targetTimeRef.current - currentTimeRef.current);
+
+      if (diff < 0.01) {
+        currentTimeRef.current = targetTimeRef.current;
+      } else {
+        currentTimeRef.current = lerp(currentTimeRef.current, targetTimeRef.current, 0.12);
+      }
+
+      if (Math.abs(videoRef.current.currentTime - currentTimeRef.current) > 0.001) {
+        videoRef.current.currentTime = currentTimeRef.current;
+      }
+
+      rafIdRef.current = requestAnimationFrame(updateFrame);
+    };
+
+    rafIdRef.current = requestAnimationFrame(updateFrame);
+
+    return () => {
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, [lerp, isVideoComplete]);
+
   useEffect(() => {
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -69,9 +111,15 @@ function PatronusResult({
       // 비디오 스크러빙 (0-25% 구간)
       if (videoRef.current && videoRef.current.duration) {
         if (progress < SCRUB_END) {
-          // 스크러빙 모드
+          // 부드러운 스크러빙 모드
           const scrubProgress = progress / SCRUB_END;
-          videoRef.current.currentTime = scrubProgress * videoRef.current.duration;
+          targetTimeRef.current = scrubProgress * videoRef.current.duration;
+
+          // 처음 호출 시 현재 시간 초기화
+          if (currentTimeRef.current === 0 && targetTimeRef.current > 0) {
+            currentTimeRef.current = targetTimeRef.current;
+          }
+
           if (!videoRef.current.paused) {
             videoRef.current.pause();
           }

@@ -5,6 +5,7 @@ import ParticleBackground from '../motion/ParticleBackground';
 import Vignette from '../dynamic-color/Vignette';
 import ScrollIndicator from '../../common/ui/ScrollIndicator';
 import ScrollRandomRevealText from '../kinetic-typography/ScrollRandomRevealText';
+import useSmoothVideoScrub from '../../hooks/useSmoothVideoScrub';
 
 /**
  * PatronusLoading 컴포넌트
@@ -38,6 +39,9 @@ function PatronusLoading({
   const videoRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
+  // 부드러운 비디오 스크러빙을 위한 훅
+  const setTargetProgress = useSmoothVideoScrub(videoRef, 0.12);
+
   useEffect(() => {
     const handleScroll = () => {
       if (!sectionRef.current) return;
@@ -50,10 +54,8 @@ function PatronusLoading({
 
       setScrollProgress(progress);
 
-      // 비디오 시간 업데이트
-      if (videoRef.current && videoRef.current.duration) {
-        videoRef.current.currentTime = progress * videoRef.current.duration;
-      }
+      // 부드러운 비디오 스크러빙
+      setTargetProgress(progress);
 
       // 스크롤 종료 콜백 (98%에서 호출하여 비디오가 끝까지 재생되도록)
       if (progress >= 0.98 && onScrollEnd) {
@@ -63,7 +65,7 @@ function PatronusLoading({
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [onScrollEnd]);
+  }, [onScrollEnd, setTargetProgress]);
 
   // 내러티브 텍스트 단계별 opacity 계산
   // STEP 01 (0-25%): 형체 모임 - 0~5%에서 페이드인, 20~25%에서 페이드아웃
