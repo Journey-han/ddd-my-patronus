@@ -1,11 +1,11 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import ParticleBackground from '../motion/ParticleBackground';
 import Vignette from '../dynamic-color/Vignette';
 import ScrollIndicator from '../../common/ui/ScrollIndicator';
 import ScrollRandomRevealText from '../kinetic-typography/ScrollRandomRevealText';
 import useSmoothVideoScrub from '../../hooks/useSmoothVideoScrub';
+import useLenisScroll from '../../hooks/useLenisScroll';
 
 /**
  * PatronusLoading 컴포넌트
@@ -42,79 +42,82 @@ function PatronusLoading({
   // 부드러운 비디오 스크러빙을 위한 훅
   const setTargetProgress = useSmoothVideoScrub(videoRef, 0.12);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
+  // 스크롤 종료 체크용 ref
+  const hasCalledScrollEnd = useRef(false);
 
-      const section = sectionRef.current;
-      const rect = section.getBoundingClientRect();
-      const sectionHeight = section.offsetHeight - window.innerHeight;
-      const scrolled = Math.max(0, -rect.top);
-      const progress = Math.min(1, scrolled / sectionHeight);
+  // Lenis 스크롤 진행률 콜백
+  const handleScrollProgress = useCallback((progress) => {
+    setScrollProgress(progress);
 
-      setScrollProgress(progress);
+    // 비디오는 스크롤에 따라 자연스럽게 계속 스크러빙
+    setTargetProgress(progress);
 
-      // 부드러운 비디오 스크러빙
-      setTargetProgress(progress);
-
-      // 스크롤 종료 콜백 (98%에서 호출하여 비디오가 끝까지 재생되도록)
-      if (progress >= 0.98 && onScrollEnd) {
-        onScrollEnd();
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    // 스크롤 종료 콜백 (98%에서 호출하여 비디오가 끝까지 재생되도록)
+    if (progress >= 0.98 && onScrollEnd && !hasCalledScrollEnd.current) {
+      hasCalledScrollEnd.current = true;
+      onScrollEnd();
+    }
+    // 다시 스크롤 올라가면 리셋
+    if (progress < 0.95) {
+      hasCalledScrollEnd.current = false;
+    }
   }, [onScrollEnd, setTargetProgress]);
 
+  // Lenis 부드러운 스크롤 적용
+  useLenisScroll(sectionRef, handleScrollProgress);
+
   // 내러티브 텍스트 단계별 opacity 계산
-  // STEP 01 (0-25%): 형체 모임 - 0~5%에서 페이드인, 20~25%에서 페이드아웃
-  const step1Opacity = scrollProgress < 0.05
-    ? scrollProgress * 20
-    : scrollProgress < 0.2
+  // 구조: 빠른 리빌 → 오래 유지(pause) → 페이드아웃
+  // 비디오는 계속 자연스럽게 스크러빙됨
+
+  // STEP 01 (0-25%): 0~3%에서 빠른 리빌, 3~22%에서 pause(유지), 22~25%에서 페이드아웃
+  const step1Opacity = scrollProgress < 0.03
+    ? Math.min(1, scrollProgress * (1 / 0.03))
+    : scrollProgress < 0.22
       ? 1
       : scrollProgress < 0.25
-        ? Math.max(0, 1 - (scrollProgress - 0.2) * 20)
+        ? Math.max(0, 1 - (scrollProgress - 0.22) * (1 / 0.03))
         : 0;
 
-  // STEP 02 (25-50%): 내면 읽기 - 25~30%에서 페이드인, 45~50%에서 페이드아웃
+  // STEP 02 (25-50%): 25~28%에서 빠른 리빌, 28~47%에서 pause(유지), 47~50%에서 페이드아웃
   const step2Opacity = scrollProgress < 0.25
     ? 0
-    : scrollProgress < 0.3
-      ? (scrollProgress - 0.25) * 20
-      : scrollProgress < 0.45
+    : scrollProgress < 0.28
+      ? Math.min(1, (scrollProgress - 0.25) * (1 / 0.03))
+      : scrollProgress < 0.47
         ? 1
-        : scrollProgress < 0.5
-          ? Math.max(0, 1 - (scrollProgress - 0.45) * 20)
+        : scrollProgress < 0.50
+          ? Math.max(0, 1 - (scrollProgress - 0.47) * (1 / 0.03))
           : 0;
 
-  // STEP 03 (50-75%): 유일성 강조 - 50~55%에서 페이드인, 70~75%에서 페이드아웃
-  const step3Opacity = scrollProgress < 0.5
+  // STEP 03 (50-75%): 50~53%에서 빠른 리빌, 53~72%에서 pause(유지), 72~75%에서 페이드아웃
+  const step3Opacity = scrollProgress < 0.50
     ? 0
-    : scrollProgress < 0.55
-      ? (scrollProgress - 0.5) * 20
-      : scrollProgress < 0.7
+    : scrollProgress < 0.53
+      ? Math.min(1, (scrollProgress - 0.50) * (1 / 0.03))
+      : scrollProgress < 0.72
         ? 1
         : scrollProgress < 0.75
-          ? Math.max(0, 1 - (scrollProgress - 0.7) * 20)
+          ? Math.max(0, 1 - (scrollProgress - 0.72) * (1 / 0.03))
           : 0;
 
-  // STEP 04 (75-90%): 결과 직전 - 75~80%에서 페이드인, 85~90%에서 페이드아웃
+  // STEP 04 (75-90%): 75~78%에서 빠른 리빌, 78~87%에서 pause(유지), 87~90%에서 페이드아웃
   const step4Opacity = scrollProgress < 0.75
     ? 0
-    : scrollProgress < 0.8
-      ? (scrollProgress - 0.75) * 20
-      : scrollProgress < 0.85
+    : scrollProgress < 0.78
+      ? Math.min(1, (scrollProgress - 0.75) * (1 / 0.03))
+      : scrollProgress < 0.87
         ? 1
-        : scrollProgress < 0.9
-          ? Math.max(0, 1 - (scrollProgress - 0.85) * 20)
+        : scrollProgress < 0.90
+          ? Math.max(0, 1 - (scrollProgress - 0.87) * (1 / 0.03))
           : 0;
 
   // 각 STEP의 텍스트 reveal을 위한 localProgress 계산
-  const step1Progress = Math.min(1, Math.max(0, scrollProgress / 0.2));
-  const step2Progress = Math.min(1, Math.max(0, (scrollProgress - 0.25) / 0.2));
-  const step3Progress = Math.min(1, Math.max(0, (scrollProgress - 0.5) / 0.2));
-  const step4Progress = Math.min(1, Math.max(0, (scrollProgress - 0.75) / 0.1));
+  // 빠르게 리빌되도록 짧은 구간(3%)에서 0→100% 진행
+  const step1Progress = Math.min(1, Math.max(0, scrollProgress / 0.03));
+  const step2Progress = Math.min(1, Math.max(0, (scrollProgress - 0.25) / 0.03));
+  const step3Progress = Math.min(1, Math.max(0, (scrollProgress - 0.50) / 0.03));
+  const step4Progress = Math.min(1, Math.max(0, (scrollProgress - 0.75) / 0.03));
 
   // Flash: 90~100%에서 페이드인
   const flashOpacity = scrollProgress >= 0.9 ? Math.min(1, (scrollProgress - 0.9) * 10) : 0;

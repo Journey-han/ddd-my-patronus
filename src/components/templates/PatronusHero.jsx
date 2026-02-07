@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ParticleBackground from '../motion/ParticleBackground';
@@ -6,6 +6,7 @@ import Vignette from '../dynamic-color/Vignette';
 import ScrollIndicator from '../../common/ui/ScrollIndicator';
 import ScrollRandomRevealText from '../kinetic-typography/ScrollRandomRevealText';
 import useSmoothVideoScrub from '../../hooks/useSmoothVideoScrub';
+import useLenisScroll from '../../hooks/useLenisScroll';
 
 /**
  * PatronusHero 컴포넌트
@@ -44,94 +45,99 @@ function PatronusHero({
   // 부드러운 비디오 스크러빙을 위한 훅
   const setTargetProgress = useSmoothVideoScrub(videoRef, 0.12);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
+  // 스크롤 종료 체크용 ref
+  const hasCalledScrollEnd = useRef(false);
 
-      const section = sectionRef.current;
-      const rect = section.getBoundingClientRect();
-      const sectionHeight = section.offsetHeight - window.innerHeight;
-      const scrolled = Math.max(0, -rect.top);
-      const progress = Math.min(1, scrolled / sectionHeight);
+  // Lenis 스크롤 진행률 콜백
+  const handleScrollProgress = useCallback((progress) => {
+    setScrollProgress(progress);
 
-      setScrollProgress(progress);
+    // 비디오는 스크롤에 따라 자연스럽게 계속 스크러빙
+    setTargetProgress(progress);
 
-      // 부드러운 비디오 스크러빙
-      setTargetProgress(progress);
-
-      // 스크롤 종료 콜백 (98%에서 호출하여 비디오가 끝까지 재생되도록)
-      if (progress >= 0.98 && onScrollEnd) {
-        onScrollEnd();
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    // 스크롤 종료 콜백 (98%에서 호출하여 비디오가 끝까지 재생되도록)
+    if (progress >= 0.98 && onScrollEnd && !hasCalledScrollEnd.current) {
+      hasCalledScrollEnd.current = true;
+      onScrollEnd();
+    }
+    // 다시 스크롤 올라가면 리셋
+    if (progress < 0.95) {
+      hasCalledScrollEnd.current = false;
+    }
   }, [onScrollEnd, setTargetProgress]);
 
-  // 타이틀 텍스트 스타일 계산 (0~15%에서 표시, 15~25%에서 페이드아웃)
-  const titleOpacity = scrollProgress < 0.15
+  // Lenis 부드러운 스크롤 적용
+  useLenisScroll(sectionRef, handleScrollProgress);
+
+  // 타이틀 텍스트 스타일 계산 (0~10%에서 표시, 10~15%에서 페이드아웃)
+  const titleOpacity = scrollProgress < 0.10
     ? 1
-    : scrollProgress < 0.25
-      ? Math.max(0, 1 - (scrollProgress - 0.15) * 10)
+    : scrollProgress < 0.15
+      ? Math.max(0, 1 - (scrollProgress - 0.10) * 20)
       : 0;
 
   // 내러티브 텍스트 단계별 opacity 계산
-  // STEP 01 (0-20%): 5%에서 페이드인, 15~20%에서 페이드아웃
+  // 구조: 빠른 리빌 → 오래 유지(pause) → 페이드아웃
+  // 비디오는 계속 자연스럽게 스크러빙됨
+
+  // STEP 01 (5-20%): 5~8%에서 빠른 리빌, 8~17%에서 pause(유지), 17~20%에서 페이드아웃
   const step1Opacity = scrollProgress < 0.05
-    ? scrollProgress * 20
-    : scrollProgress < 0.15
-      ? 1
-      : scrollProgress < 0.2
-        ? Math.max(0, 1 - (scrollProgress - 0.15) * 20)
-        : 0;
-
-  // STEP 02 (20-40%): 20~25%에서 페이드인, 35~40%에서 페이드아웃
-  const step2Opacity = scrollProgress < 0.2
     ? 0
-    : scrollProgress < 0.25
-      ? (scrollProgress - 0.2) * 20
-      : scrollProgress < 0.35
+    : scrollProgress < 0.08
+      ? Math.min(1, (scrollProgress - 0.05) * (1 / 0.03))
+      : scrollProgress < 0.17
         ? 1
-        : scrollProgress < 0.4
-          ? Math.max(0, 1 - (scrollProgress - 0.35) * 20)
+        : scrollProgress < 0.20
+          ? Math.max(0, 1 - (scrollProgress - 0.17) * (1 / 0.03))
           : 0;
 
-  // STEP 03 (40-60%): 40~45%에서 페이드인, 55~60%에서 페이드아웃
-  const step3Opacity = scrollProgress < 0.4
+  // STEP 02 (20-40%): 20~23%에서 빠른 리빌, 23~37%에서 pause(유지), 37~40%에서 페이드아웃
+  const step2Opacity = scrollProgress < 0.20
     ? 0
-    : scrollProgress < 0.45
-      ? (scrollProgress - 0.4) * 20
-      : scrollProgress < 0.55
+    : scrollProgress < 0.23
+      ? Math.min(1, (scrollProgress - 0.20) * (1 / 0.03))
+      : scrollProgress < 0.37
         ? 1
-        : scrollProgress < 0.6
-          ? Math.max(0, 1 - (scrollProgress - 0.55) * 20)
+        : scrollProgress < 0.40
+          ? Math.max(0, 1 - (scrollProgress - 0.37) * (1 / 0.03))
           : 0;
 
-  // STEP 04 (60-80%): 60~65%에서 페이드인, 75~80%에서 페이드아웃
-  const step4Opacity = scrollProgress < 0.6
+  // STEP 03 (40-60%): 40~43%에서 빠른 리빌, 43~57%에서 pause(유지), 57~60%에서 페이드아웃
+  const step3Opacity = scrollProgress < 0.40
     ? 0
-    : scrollProgress < 0.65
-      ? (scrollProgress - 0.6) * 20
-      : scrollProgress < 0.75
+    : scrollProgress < 0.43
+      ? Math.min(1, (scrollProgress - 0.40) * (1 / 0.03))
+      : scrollProgress < 0.57
         ? 1
-        : scrollProgress < 0.8
-          ? Math.max(0, 1 - (scrollProgress - 0.75) * 20)
+        : scrollProgress < 0.60
+          ? Math.max(0, 1 - (scrollProgress - 0.57) * (1 / 0.03))
           : 0;
 
-  // STEP 05 (80-100%): 80~85%에서 페이드인, 유지
-  const step5Opacity = scrollProgress < 0.8
+  // STEP 04 (60-80%): 60~63%에서 빠른 리빌, 63~77%에서 pause(유지), 77~80%에서 페이드아웃
+  const step4Opacity = scrollProgress < 0.60
     ? 0
-    : scrollProgress < 0.85
-      ? (scrollProgress - 0.8) * 20
+    : scrollProgress < 0.63
+      ? Math.min(1, (scrollProgress - 0.60) * (1 / 0.03))
+      : scrollProgress < 0.77
+        ? 1
+        : scrollProgress < 0.80
+          ? Math.max(0, 1 - (scrollProgress - 0.77) * (1 / 0.03))
+          : 0;
+
+  // STEP 05 (80-100%): 80~83%에서 빠른 리빌, 83~100%에서 유지
+  const step5Opacity = scrollProgress < 0.80
+    ? 0
+    : scrollProgress < 0.83
+      ? Math.min(1, (scrollProgress - 0.80) * (1 / 0.03))
       : 1;
 
   // 각 STEP의 텍스트 reveal을 위한 localProgress 계산
-  const step1Progress = Math.min(1, Math.max(0, scrollProgress / 0.15));
-  const step2Progress = Math.min(1, Math.max(0, (scrollProgress - 0.2) / 0.15));
-  const step3Progress = Math.min(1, Math.max(0, (scrollProgress - 0.4) / 0.15));
-  const step4Progress = Math.min(1, Math.max(0, (scrollProgress - 0.6) / 0.15));
-  const step5Progress = Math.min(1, Math.max(0, (scrollProgress - 0.8) / 0.15));
+  // 빠르게 리빌되도록 짧은 구간(3%)에서 0→100% 진행
+  const step1Progress = Math.min(1, Math.max(0, (scrollProgress - 0.05) / 0.03));
+  const step2Progress = Math.min(1, Math.max(0, (scrollProgress - 0.20) / 0.03));
+  const step3Progress = Math.min(1, Math.max(0, (scrollProgress - 0.40) / 0.03));
+  const step4Progress = Math.min(1, Math.max(0, (scrollProgress - 0.60) / 0.03));
+  const step5Progress = Math.min(1, Math.max(0, (scrollProgress - 0.80) / 0.03));
 
   return (
     <Box

@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Lenis from 'lenis';
 import ParticleBackground from '../motion/ParticleBackground';
 import Vignette from '../dynamic-color/Vignette';
 
@@ -91,7 +92,7 @@ function PatronusResult({
     };
   }, [lerp, isVideoComplete]);
 
-  // 스크롤 기반 비디오 스크러빙 (첫 500vh 구간)
+  // Lenis 스크롤 기반 비디오 스크러빙 (첫 500vh 구간)
   useEffect(() => {
     const SCRUB_HEIGHT = window.innerHeight * 5; // 500vh - 영상이 충분히 보이도록
 
@@ -118,15 +119,44 @@ function PatronusResult({
           setIsVideoComplete(true);
           videoRef.current.currentTime = 0;
           videoRef.current.loop = true;
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Lenis 인스턴스 생성
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    // Lenis 스크롤 이벤트 리스너
+    lenis.on('scroll', handleScroll);
+
+    // RAF 루프
+    let rafId;
+    const raf = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    // 초기 실행
     handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      lenis.off('scroll', handleScroll);
+      lenis.destroy();
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [isVideoComplete]);
 
   // 희귀도 색상 매핑
@@ -218,340 +248,384 @@ function PatronusResult({
           position: 'relative',
           zIndex: 2,
           mt: '-100vh', // sticky 배경 위로 겹치기
-          pt: '200vh', // 스크러빙 구간 (빈 공간)
+          pt: '500vh', // 스크러빙 구간 (500vh) - 영상 스크러빙 완료 후 콘텐츠 시작
         }}
       >
-        {/* 결과 콘텐츠 컨테이너 */}
+        {/* 그라데이션 블러 오버레이 */}
         <Box
           sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            px: { xs: 3, sm: 4, md: 6 },
-            py: { xs: 6, md: 8 },
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(10, 10, 18, 0.8) 5%, rgba(10, 10, 18, 0.95) 15%, #0a0a12 30%)',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '40vh',
+              background: `linear-gradient(to bottom,
+                transparent 0%,
+                rgba(10, 10, 18, 0.05) 10%,
+                rgba(10, 10, 18, 0.1) 30%,
+                rgba(10, 10, 18, 0.2) 60%,
+                rgba(10, 10, 18, 0.3) 100%
+              )`,
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              pointerEvents: 'none',
+              zIndex: 0,
+            },
           }}
         >
-          {/* Section 1: Emoji & Rarity */}
+          {/* 결과 콘텐츠 컨테이너 */}
           <Box
             sx={{
+              position: 'relative',
+              zIndex: 1,
+              minHeight: '100vh',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              mb: { xs: 4, md: 6 },
+              px: { xs: 3, sm: 4, md: 6 },
+              py: { xs: 6, md: 8 },
+              pt: { xs: '15vh', md: '20vh' }, // 블러 영역 지난 후 콘텐츠 시작
+              backgroundColor: 'rgba(10, 10, 18, 0.3)', // 배경 opacity 30%
+              // 상단 가장자리 blur로 자연스러운 연결
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '15vh',
+                background: 'linear-gradient(to bottom, transparent 0%, rgba(10, 10, 18, 0.3) 100%)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
+                pointerEvents: 'none',
+                maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+              },
             }}
           >
-            {/* Rarity Badge */}
+            {/* Section 1: Emoji & Rarity */}
             <Box
               sx={{
-                px: { xs: 1.5, md: 2 },
-                py: 0.5,
-                mb: { xs: 1.5, md: 2 },
-                borderRadius: '12px',
-                backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                border: `1px solid ${rarityColors[patronus.rarity] || '#87CEEB'}`,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                mb: { xs: 4, md: 6 },
+              }}
+            >
+              {/* Rarity Badge */}
+              <Box
+                sx={{
+                  px: { xs: 1.5, md: 2 },
+                  py: 0.5,
+                  mb: { xs: 1.5, md: 2 },
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  border: `1px solid ${rarityColors[patronus.rarity] || '#87CEEB'}`,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: '"Cinzel", serif',
+                    fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
+                    fontWeight: 600,
+                    color: rarityColors[patronus.rarity] || '#87CEEB',
+                    letterSpacing: '0.15em',
+                  }}
+                >
+                  {patronus.rarity?.toUpperCase()}
+                </Typography>
+              </Box>
+
+              <Typography
+                sx={{
+                  fontSize: { xs: '5rem', sm: '7rem', md: '10rem' },
+                  textShadow: `0 0 60px ${patronus.color || 'rgba(135, 206, 235, 0.5)'}`,
+                  '@keyframes float': {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-10px)' },
+                  },
+                  animation: 'float 3s ease-in-out infinite',
+                }}
+              >
+                {patronus.emoji}
+              </Typography>
+            </Box>
+
+            {/* Section 2: Name & Quote */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                mb: { xs: 5, md: 8 },
+                maxWidth: 600,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontWeight: 300,
+                  fontSize: { xs: '0.9rem', md: '1rem' },
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  letterSpacing: '0.3em',
+                  mb: 1,
+                }}
+              >
+                YOUR PATRONUS IS
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: '"Cinzel", serif',
+                  fontWeight: 700,
+                  fontSize: { xs: '2.5rem', sm: '3rem', md: '4rem' },
+                  background: `linear-gradient(180deg, #FFFFFF 0%, ${patronus.color || '#87CEEB'} 100%)`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: `0 0 40px ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
+                  mb: 3,
+                }}
+              >
+                {patronus.name}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontWeight: 300,
+                  fontSize: { xs: '1.1rem', md: '1.3rem' },
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  fontStyle: 'italic',
+                }}
+              >
+                "{patronus.quote}"
+              </Typography>
+            </Box>
+
+            {/* Section 3: Description */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                mb: { xs: 4, md: 6 },
+                maxWidth: 700,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontWeight: 300,
+                  fontSize: { xs: '1rem', md: '1.15rem' },
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  lineHeight: 2,
+                }}
+              >
+                {patronus.description}
+              </Typography>
+            </Box>
+
+            {/* Section 4: Traits */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: { xs: 1.5, sm: 2, md: 2.5 },
+                mb: { xs: 6, md: 10 },
+              }}
+            >
+              {patronus.traits?.map((trait, index) => (
+                <Box
+                  key={trait}
+                  sx={{
+                    px: { xs: 2.5, md: 3 },
+                    py: { xs: 1, md: 1.25 },
+                    border: `1px solid ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
+                    borderRadius: '24px',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    fontFamily: '"Noto Sans KR", sans-serif',
+                    fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
+                    fontWeight: 400,
+                    backgroundColor: 'rgba(135, 206, 235, 0.1)',
+                    '@keyframes traitPulse': {
+                      '0%, 100%': { borderColor: patronus.color || 'rgba(135, 206, 235, 0.4)' },
+                      '50%': { borderColor: patronus.color ? `${patronus.color}CC` : 'rgba(135, 206, 235, 0.7)' },
+                    },
+                    animation: `traitPulse 2s ease-in-out ${index * 0.2}s infinite`,
+                  }}
+                >
+                  {trait}
+                </Box>
+              ))}
+            </Box>
+
+            {/* Section 5: Hogwarts House */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                mb: { xs: 5, md: 8 },
               }}
             >
               <Typography
                 sx={{
                   fontFamily: '"Cinzel", serif',
-                  fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
-                  fontWeight: 600,
-                  color: rarityColors[patronus.rarity] || '#87CEEB',
-                  letterSpacing: '0.15em',
+                  fontSize: '0.85rem',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  letterSpacing: '0.2em',
+                  mb: 1.5,
                 }}
               >
-                {patronus.rarity?.toUpperCase()}
+                BEST HOUSE
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: '"Cinzel", serif',
+                  fontSize: { xs: '1.8rem', md: '2.5rem' },
+                  fontWeight: 600,
+                  color: patronus.color || '#87CEEB',
+                }}
+              >
+                {patronus.hogwartsHouse}
               </Typography>
             </Box>
 
-            <Typography
+            {/* Section 6: Famous Match */}
+            <Box
               sx={{
-                fontSize: { xs: '5rem', sm: '7rem', md: '10rem' },
-                textShadow: `0 0 60px ${patronus.color || 'rgba(135, 206, 235, 0.5)'}`,
-                '@keyframes float': {
-                  '0%, 100%': { transform: 'translateY(0)' },
-                  '50%': { transform: 'translateY(-10px)' },
-                },
-                animation: 'float 3s ease-in-out infinite',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                mb: { xs: 6, md: 10 },
+                maxWidth: 500,
               }}
             >
-              {patronus.emoji}
-            </Typography>
-          </Box>
-
-          {/* Section 2: Name & Quote */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              mb: { xs: 5, md: 8 },
-              maxWidth: 600,
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontWeight: 300,
-                fontSize: { xs: '0.9rem', md: '1rem' },
-                color: 'rgba(255, 255, 255, 0.6)',
-                letterSpacing: '0.3em',
-                mb: 1,
-              }}
-            >
-              YOUR PATRONUS IS
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: '"Cinzel", serif',
-                fontWeight: 700,
-                fontSize: { xs: '2.5rem', sm: '3rem', md: '4rem' },
-                background: `linear-gradient(180deg, #FFFFFF 0%, ${patronus.color || '#87CEEB'} 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: `0 0 40px ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
-                mb: 3,
-              }}
-            >
-              {patronus.name}
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontWeight: 300,
-                fontSize: { xs: '1.1rem', md: '1.3rem' },
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontStyle: 'italic',
-              }}
-            >
-              "{patronus.quote}"
-            </Typography>
-          </Box>
-
-          {/* Section 3: Description */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              mb: { xs: 4, md: 6 },
-              maxWidth: 700,
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontWeight: 300,
-                fontSize: { xs: '1rem', md: '1.15rem' },
-                color: 'rgba(255, 255, 255, 0.85)',
-                lineHeight: 2,
-              }}
-            >
-              {patronus.description}
-            </Typography>
-          </Box>
-
-          {/* Section 4: Traits */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: { xs: 1.5, sm: 2, md: 2.5 },
-              mb: { xs: 6, md: 10 },
-            }}
-          >
-            {patronus.traits?.map((trait, index) => (
-              <Box
-                key={trait}
+              <Typography
                 sx={{
-                  px: { xs: 2.5, md: 3 },
-                  py: { xs: 1, md: 1.25 },
-                  border: `1px solid ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
-                  borderRadius: '24px',
-                  color: 'rgba(255, 255, 255, 0.9)',
                   fontFamily: '"Noto Sans KR", sans-serif',
-                  fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-                  fontWeight: 400,
-                  backgroundColor: 'rgba(135, 206, 235, 0.1)',
-                  '@keyframes traitPulse': {
-                    '0%, 100%': { borderColor: patronus.color || 'rgba(135, 206, 235, 0.4)' },
-                    '50%': { borderColor: patronus.color ? `${patronus.color}CC` : 'rgba(135, 206, 235, 0.7)' },
-                  },
-                  animation: `traitPulse 2s ease-in-out ${index * 0.2}s infinite`,
+                  fontSize: '0.85rem',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  mb: 1.5,
                 }}
               >
-                {trait}
-              </Box>
-            ))}
-          </Box>
+                같은 페트로누스를 가진 캐릭터
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontSize: { xs: '1.1rem', md: '1.2rem' },
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                }}
+              >
+                {patronus.famousMatch}
+              </Typography>
+            </Box>
 
-          {/* Section 5: Hogwarts House */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              mb: { xs: 5, md: 8 },
-            }}
-          >
-            <Typography
+            {/* Section 7: Advice */}
+            <Box
               sx={{
-                fontFamily: '"Cinzel", serif',
-                fontSize: '0.85rem',
-                color: 'rgba(255, 255, 255, 0.5)',
-                letterSpacing: '0.2em',
-                mb: 1.5,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                mb: { xs: 6, md: 10 },
+                maxWidth: 600,
               }}
             >
-              BEST HOUSE
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: '"Cinzel", serif',
-                fontSize: { xs: '1.8rem', md: '2.5rem' },
-                fontWeight: 600,
-                color: patronus.color || '#87CEEB',
-              }}
-            >
-              {patronus.hogwartsHouse}
-            </Typography>
-          </Box>
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontSize: '0.85rem',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  mb: 2,
+                }}
+              >
+                당신의 수호령이 전하는 말
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontSize: { xs: '1.1rem', md: '1.25rem' },
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: 300,
+                  lineHeight: 1.9,
+                  fontStyle: 'italic',
+                }}
+              >
+                "{patronus.advice}"
+              </Typography>
+            </Box>
 
-          {/* Section 6: Famous Match */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              mb: { xs: 6, md: 10 },
-              maxWidth: 500,
-            }}
-          >
-            <Typography
+            {/* Section 8: Action Buttons */}
+            <Box
               sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontSize: '0.85rem',
-                color: 'rgba(255, 255, 255, 0.5)',
-                mb: 1.5,
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 2, sm: 3 },
+                width: { xs: '100%', sm: 'auto' },
+                maxWidth: 400,
+                pb: { xs: 8, md: 12 },
               }}
             >
-              같은 페트로누스를 가진 캐릭터
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontSize: { xs: '1.1rem', md: '1.2rem' },
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontWeight: 400,
-                lineHeight: 1.6,
-              }}
-            >
-              {patronus.famousMatch}
-            </Typography>
-          </Box>
-
-          {/* Section 7: Advice */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              mb: { xs: 6, md: 10 },
-              maxWidth: 600,
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontSize: '0.85rem',
-                color: 'rgba(255, 255, 255, 0.5)',
-                mb: 2,
-              }}
-            >
-              당신의 수호령이 전하는 말
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontSize: { xs: '1.1rem', md: '1.25rem' },
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontWeight: 300,
-                lineHeight: 1.9,
-                fontStyle: 'italic',
-              }}
-            >
-              "{patronus.advice}"
-            </Typography>
-          </Box>
-
-          {/* Section 8: Action Buttons */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: { xs: 2, sm: 3 },
-              width: { xs: '100%', sm: 'auto' },
-              maxWidth: 400,
-              pb: { xs: 8, md: 12 },
-            }}
-          >
-            <Button
-              variant="contained"
-              onClick={onShare}
-              sx={{
-                flex: { sm: 1 },
-                px: { xs: 4, md: 5 },
-                py: { xs: 1.5, md: 2 },
-                fontSize: { xs: '1rem', md: '1.1rem' },
-                backgroundColor: patronus.color ? `${patronus.color}4D` : 'rgba(135, 206, 235, 0.3)',
-                color: '#fff',
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontWeight: 500,
-                border: `1px solid ${patronus.color || 'rgba(135, 206, 235, 0.5)'}`,
-                '&:hover': {
-                  backgroundColor: patronus.color ? `${patronus.color}80` : 'rgba(135, 206, 235, 0.5)',
-                  boxShadow: `0 0 20px ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
-                },
-                '@media (hover: none)': {
-                  '&:active': {
+              <Button
+                variant="contained"
+                onClick={onShare}
+                sx={{
+                  flex: { sm: 1 },
+                  px: { xs: 4, md: 5 },
+                  py: { xs: 1.5, md: 2 },
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  backgroundColor: patronus.color ? `${patronus.color}4D` : 'rgba(135, 206, 235, 0.3)',
+                  color: '#fff',
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontWeight: 500,
+                  border: `1px solid ${patronus.color || 'rgba(135, 206, 235, 0.5)'}`,
+                  '&:hover': {
                     backgroundColor: patronus.color ? `${patronus.color}80` : 'rgba(135, 206, 235, 0.5)',
+                    boxShadow: `0 0 20px ${patronus.color || 'rgba(135, 206, 235, 0.4)'}`,
                   },
-                },
-                transition: 'all 0.3s ease',
-                minHeight: { xs: '52px', md: 'auto' },
-              }}
-            >
-              공유하기
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={onRetry}
-              sx={{
-                flex: { sm: 1 },
-                px: { xs: 4, md: 5 },
-                py: { xs: 1.5, md: 2 },
-                fontSize: { xs: '1rem', md: '1.1rem' },
-                borderColor: 'rgba(255, 255, 255, 0.3)',
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontFamily: '"Noto Sans KR", sans-serif',
-                fontWeight: 400,
-                '&:hover': {
-                  borderColor: 'rgba(255, 255, 255, 0.6)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                },
-                minHeight: { xs: '52px', md: 'auto' },
-              }}
-            >
-              다시하기
-            </Button>
+                  '@media (hover: none)': {
+                    '&:active': {
+                      backgroundColor: patronus.color ? `${patronus.color}80` : 'rgba(135, 206, 235, 0.5)',
+                    },
+                  },
+                  transition: 'all 0.3s ease',
+                  minHeight: { xs: '52px', md: 'auto' },
+                }}
+              >
+                공유하기
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={onRetry}
+                sx={{
+                  flex: { sm: 1 },
+                  px: { xs: 4, md: 5 },
+                  py: { xs: 1.5, md: 2 },
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  fontFamily: '"Noto Sans KR", sans-serif',
+                  fontWeight: 400,
+                  '&:hover': {
+                    borderColor: 'rgba(255, 255, 255, 0.6)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  },
+                  minHeight: { xs: '52px', md: 'auto' },
+                }}
+              >
+                다시하기
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>
