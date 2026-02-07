@@ -33,6 +33,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - CustomCard: 미디어+콘텐츠 카드. vertical/horizontal/overlay 레이아웃 (`components/card/CustomCard.jsx`)
 - ImageCard: 이미지 카드 (`components/card/ImageCard.jsx`)
 - MoodboardCard: 무드보드 컬렉션 카드. 2x2 썸네일 그리드 (`components/card/MoodboardCard.jsx`)
+- GlowCard: 글로우 효과 답변 카드. default/hover/selected 3단계 상태 (`components/card/GlowCard.jsx`)
 - Card: MUI Card 컴포넌트 [MUI]
 
 ## 4. Media — 이미지, 비디오 표시
@@ -72,6 +73,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - PageContainer: 반응형 페이지 컨테이너. PC maxWidth 고정, 모바일 100% (`components/layout/PageContainer.jsx`)
 - AppShell: 반응형 앱 셸. GNB + 메인 콘텐츠 영역 (`components/layout/AppShell.jsx`)
 - StickyAsideCenterLayout: 대칭 3열 그리드. sticky aside + 페이지 정중앙 콘텐츠 + 빈 대칭 칼럼 (`components/layout/StickyAsideCenterLayout.jsx`)
+- QuestionLayout: 비정형 레이아웃 5패턴. 질문마다 텍스트/답변 위치가 달라지는 다이나믹 배치 (`components/layout/QuestionLayout.jsx`)
 - Grid: MUI Grid 컴포넌트 [MUI]
 - Masonry: MUI Masonry 컴포넌트 [MUI]
 
@@ -90,10 +92,12 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - RandomRevealText: 랜덤 순서 blur 리빌 타이포그래피. Fisher-Yates 셔플 기반 (`components/kinetic-typography/RandomRevealText.jsx`)
 - ScrambleText: 텍스트 스크램블 전환 효과. requestAnimationFrame 기반 (`components/kinetic-typography/ScrambleText.jsx`)
 - ScrollRevealText: 스크롤 진행에 따른 텍스트 순차 리빌 (`components/kinetic-typography/ScrollRevealText.jsx`)
+- SplitText: 텍스트 글자별 분해 순차 애니메이션. 로딩 주문 텍스트용 (`components/kinetic-typography/SplitText.jsx`)
 
 ## 13. ContentTransition (Interactive) — 섹션 간 전환
 
 - HorizontalScrollContainer: 세로 스크롤→가로 이동 변환 컨테이너. 픽셀 기반 DOM 측정, Framer Motion (`components/content-transition/HorizontalScrollContainer.jsx`)
+- SlideUpContent: 스크롤 기반 슬라이드업 콘텐츠. 배경 위로 순차 공개되는 결과 카드 (`components/content-transition/SlideUpContent.jsx`)
 
 ## 12. Scroll (Interactive) — 스크롤 기반 효과
 
@@ -105,10 +109,23 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - FadeTransition: 기본 opacity 전환 애니메이션. 등장/퇴장 페이드 + 방향 슬라이드, IntersectionObserver 자동 트리거 (`components/motion/FadeTransition.jsx`)
 - PerspectiveTransition: 3D 원근 회전 전환. 뒤로 누워있다가 세워지는 효과, CSS perspective + rotateX, IntersectionObserver 자동 트리거 (`components/motion/PerspectiveTransition.jsx`)
 - MarqueeContainer: 무한 루프 수평 흐름 컨테이너. CSS keyframes 기반 (`components/motion/MarqueeContainer.jsx`)
+- ParticleBackground: CSS animation 기반 파티클 배경. 반짝이는 별/빛 입자 효과 (`components/motion/ParticleBackground.jsx`)
 
 ## 15. DynamicColor (Interactive) — 동적 색상 변화
 
 - GradientOverlay: Three.js WebGL 스크롤 반응형 그라데이션 배경. Simplex Noise + 필름 그레인 (`components/dynamic-color/GradientOverlay.jsx`)
+- Vignette: 비네트 오버레이. 방사형 그라데이션으로 가장자리 어둡게, 하단 그라데이션 옵션 (`components/dynamic-color/Vignette.jsx`)
+
+---
+
+## Template — 복합 섹션 템플릿
+
+### Patronus Test (페트로누스 심리테스트)
+
+- PatronusHero: 히어로 섹션. 스크롤 비디오 스크러빙 + 타이틀 + 파티클 배경 (`components/templates/PatronusHero.jsx`)
+- PatronusQuestion: 질문 섹션. 1문1답 형식 7개 질문, 비정형 레이아웃 5패턴 순환 (`components/templates/PatronusQuestion.jsx`)
+- PatronusLoading: 로딩 섹션. "Expecto..." → "PATRONUM!" 텍스트 전환 + 은빛 플래시 (`components/templates/PatronusLoading.jsx`)
+- PatronusResult: 결과 섹션. 스크롤 비디오 + 슬라이드업 결과 카드 (이모지, 이름, 설명, 특성, 공유) (`components/templates/PatronusResult.jsx`)
 
 ---
 
@@ -116,4 +133,6 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 - Indicator: 범용 인디케이터 (`common/ui/Indicator.jsx`)
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)
+- ProgressIndicator: 질문 진행률 바. 글로우 그라데이션 효과 (`common/ui/ProgressIndicator.jsx`)
+- ScrollIndicator: 스크롤 유도 인디케이터. 바운스 화살표 + 텍스트 (`common/ui/ScrollIndicator.jsx`)
 - FilterBar: 필터 바 (`components/templates/FilterBar.jsx`)

@@ -7,3 +7,6 @@ export { MoodboardCard } from './MoodboardCard.jsx';
 
 // Style variant wrapper
 export { CardContainer } from './CardContainer.jsx';
+
+// Glow effect card (Patronus 심리테스트용)
+export { default as GlowCard } from './GlowCard.jsx';

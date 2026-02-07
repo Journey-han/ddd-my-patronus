@@ -49,7 +49,11 @@ export const Default = {
         <Table size="small">
           <TableBody>
             <TableRow>
-              <TableCell sx={ { fontWeight: 600, width: '30%' } }>Main Page</TableCell>
+              <TableCell sx={ { fontWeight: 600, width: '30%', color: 'primary.main' } }>Patronus Page</TableCell>
+              <TableCell>페트로누스 심리테스트 페이지 (스크롤 비디오 + 1문1답)</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={ { fontWeight: 600 } }>Main Page</TableCell>
               <TableCell>메인 랜딩 페이지</TableCell>
             </TableRow>
             <TableRow>

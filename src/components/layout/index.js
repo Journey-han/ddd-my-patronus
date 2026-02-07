@@ -32,3 +32,6 @@ export { PageContainer } from './PageContainer.jsx';
 // AppShell - 반응형 앱 셸
 export { AppShell } from './AppShell.jsx';
 export { useAppShell } from './useAppShell.js';
+
+// QuestionLayout - 비정형 레이아웃 5패턴
+export { default as QuestionLayout } from './QuestionLayout.jsx';
