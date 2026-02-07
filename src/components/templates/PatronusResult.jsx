@@ -2,9 +2,9 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Lenis from 'lenis';
 import ParticleBackground from '../motion/ParticleBackground';
 import Vignette from '../dynamic-color/Vignette';
+import ResultGradientOverlay from '../dynamic-color/ResultGradientOverlay';
 
 /**
  * PatronusResult 컴포넌트
@@ -49,13 +49,14 @@ function PatronusResult({
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const [isVideoComplete, setIsVideoComplete] = useState(false);
+  const isVideoCompleteRef = useRef(false); // 클로저 문제 해결용 ref
 
   // 부드러운 비디오 스크러빙을 위한 상태
   const targetTimeRef = useRef(0);
   const currentTimeRef = useRef(0);
   const rafIdRef = useRef(null);
 
-  // lerp 함수
+  // lerp 함수 - 더 부드러운 보간
   const lerp = useCallback((start, end, factor) => {
     return start + (end - start) * factor;
   }, []);
@@ -63,19 +64,22 @@ function PatronusResult({
   // 부드러운 스크러빙 애니메이션 프레임
   useEffect(() => {
     const updateFrame = () => {
-      if (!videoRef.current || !videoRef.current.duration || isVideoComplete) {
+      // 루프 재생 중이면 스크러빙 중단
+      if (!videoRef.current || !videoRef.current.duration || isVideoCompleteRef.current) {
         rafIdRef.current = requestAnimationFrame(updateFrame);
         return;
       }
 
       const diff = Math.abs(targetTimeRef.current - currentTimeRef.current);
 
-      if (diff < 0.01) {
+      if (diff < 0.005) {
         currentTimeRef.current = targetTimeRef.current;
       } else {
-        currentTimeRef.current = lerp(currentTimeRef.current, targetTimeRef.current, 0.12);
+        // 더 부드러운 보간 (0.08로 낮춤)
+        currentTimeRef.current = lerp(currentTimeRef.current, targetTimeRef.current, 0.08);
       }
 
+      // 비디오 시간 업데이트
       if (Math.abs(videoRef.current.currentTime - currentTimeRef.current) > 0.001) {
         videoRef.current.currentTime = currentTimeRef.current;
       }
@@ -90,11 +94,11 @@ function PatronusResult({
         cancelAnimationFrame(rafIdRef.current);
       }
     };
-  }, [lerp, isVideoComplete]);
+  }, [lerp]);
 
-  // Lenis 스크롤 기반 비디오 스크러빙 (첫 500vh 구간)
+  // 스크롤 기반 비디오 스크러빙 (첫 500vh 구간)
   useEffect(() => {
-    const SCRUB_HEIGHT = window.innerHeight * 5; // 500vh - 영상이 충분히 보이도록
+    const SCRUB_HEIGHT = window.innerHeight * 5; // 500vh
 
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -104,7 +108,8 @@ function PatronusResult({
 
       // 비디오 스크러빙 (0 ~ 500vh 구간)
       if (videoRef.current && videoRef.current.duration) {
-        if (scrolled < SCRUB_HEIGHT) {
+        if (scrolled < SCRUB_HEIGHT && !isVideoCompleteRef.current) {
+          // 스크러빙 모드 (루프 시작 전에만)
           const scrubProgress = scrolled / SCRUB_HEIGHT;
           targetTimeRef.current = scrubProgress * videoRef.current.duration;
 
@@ -115,49 +120,26 @@ function PatronusResult({
           if (!videoRef.current.paused) {
             videoRef.current.pause();
           }
-        } else if (!isVideoComplete) {
+        } else if (!isVideoCompleteRef.current) {
+          // 스크러빙 완료 → 루프 재생 시작 (한 번만 실행)
+          isVideoCompleteRef.current = true;
           setIsVideoComplete(true);
           videoRef.current.currentTime = 0;
           videoRef.current.loop = true;
           videoRef.current.play().catch(() => { });
         }
+        // isVideoCompleteRef.current가 true이면 루프 재생 유지
       }
     };
 
-    // Lenis 인스턴스 생성
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-
-    // Lenis 스크롤 이벤트 리스너
-    lenis.on('scroll', handleScroll);
-
-    // RAF 루프
-    let rafId;
-    const raf = (time) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-
-    // 초기 실행
+    // 네이티브 스크롤 이벤트 사용 (Lenis 제거로 안정성 확보)
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 
     return () => {
-      lenis.off('scroll', handleScroll);
-      lenis.destroy();
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [isVideoComplete]);
+  }, []); // dependency 비움 - 한 번만 실행
 
   // 희귀도 색상 매핑
   const rarityColors = {
@@ -251,31 +233,14 @@ function PatronusResult({
           pt: '500vh', // 스크러빙 구간 (500vh) - 영상 스크러빙 완료 후 콘텐츠 시작
         }}
       >
-        {/* 그라데이션 블러 오버레이 */}
+        {/* 그라데이션 블러 오버레이 - Simplex Noise 웨이브 효과 */}
         <Box
           sx={{
             position: 'relative',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '40vh',
-              background: `linear-gradient(to bottom,
-                transparent 0%,
-                rgba(10, 10, 18, 0.05) 10%,
-                rgba(10, 10, 18, 0.1) 30%,
-                rgba(10, 10, 18, 0.2) 60%,
-                rgba(10, 10, 18, 0.3) 100%
-              )`,
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              pointerEvents: 'none',
-              zIndex: 0,
-            },
           }}
         >
+          {/* Three.js WebGL 그라데이션 오버레이 - 스크롤 연동 */}
+          <ResultGradientOverlay containerRef={containerRef} height="30vh" />
           {/* 결과 콘텐츠 컨테이너 */}
           <Box
             sx={{
