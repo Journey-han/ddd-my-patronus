@@ -96,7 +96,7 @@
 │            Discover Your                │  ← Cinzel 400, letter-spacing 0.5em
 │             PATRONUS                    │  ← Cinzel 900, 6rem, 그라데이션+글로우
 │                                         │
-│      당신의 내면에 잠든 수호령을 깨우세요   │  ← Noto Sans KR 300, 1.1rem
+│      당신의 내면에 잠든 패트로누스를 깨우세요   │  ← Noto Sans KR 300, 1.1rem
 │                                         │
 │               ┌───┐                     │
 │               │ ↓ │                     │  ← 스크롤 인디케이터

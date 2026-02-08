@@ -147,7 +147,7 @@ export const HeroContext = {
             color: 'rgba(255,255,255,0.6)',
           }}
         >
-          당신의 내면에 잠든 수호령을 깨우세요
+          당신의 내면에 잠든 패트로누스를 깨우세요
         </Typography>
       </Box>
 

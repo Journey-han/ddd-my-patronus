@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import ParticleBackground from '../motion/ParticleBackground';
 import Vignette from '../dynamic-color/Vignette';
 import ResultGradientOverlay from '../dynamic-color/ResultGradientOverlay';
+import ScrollIndicator from '../../common/ui/ScrollIndicator';
 
 /**
  * PatronusResult 컴포넌트
@@ -222,6 +223,23 @@ function PatronusResult({
           isFloating
           brightness={isVideoComplete ? 1.8 : 1.2}
         />
+
+        {/* Scroll Indicator - 비디오 스크러빙 중에만 표시 */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: { xs: 40, md: 60 },
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 10,
+          }}
+        >
+          <ScrollIndicator
+            text="Scroll Down"
+            color={patronus.color || '#87CEEB'}
+            isVisible={!isVideoComplete}
+          />
+        </Box>
       </Box>
 
       {/* Content Area - 배경 위로 올라오는 콘텐츠 */}
@@ -514,7 +532,7 @@ function PatronusResult({
                   mb: 2,
                 }}
               >
-                당신의 수호령이 전하는 말
+                당신의 패트로누스가 전하는 말
               </Typography>
               <Typography
                 sx={{
