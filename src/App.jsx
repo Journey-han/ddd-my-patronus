@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,9 +10,19 @@ import { defaultTheme as theme } from './styles/themes';
 import PatronusPage from './pages/PatronusPage';
 
 function HomePage() {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   return (
     <Box
       sx={{
+        position: 'relative',
         p: 4,
         textAlign: 'center',
         minHeight: '100vh',
@@ -21,42 +32,74 @@ function HomePage() {
         alignItems: 'center',
         gap: 3,
         backgroundColor: '#0a0a12',
+        overflow: 'hidden',
       }}
     >
-      <Typography
-        variant="h3"
-        gutterBottom
+      {/* 배경 비디오 */}
+      <video
+        ref={videoRef}
+        src="/video/intro.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          opacity: 0.6,
+        }}
+      />
+      {/* 콘텐츠 */}
+      <Box
         sx={{
-          fontFamily: '"Cinzel", serif',
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #87CEEB 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
         }}
       >
-        Patronus Finder
-      </Typography>
-      <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-        당신의 수호령을 찾아보세요
-      </Typography>
-      <Button
-        component={Link}
-        to="/patronus"
-        variant="outlined"
-        sx={{
-          mt: 2,
-          px: 4,
-          py: 1.5,
-          borderColor: 'rgba(135, 206, 235, 0.5)',
-          color: '#87CEEB',
-          fontFamily: '"Cinzel", serif',
-          '&:hover': {
-            borderColor: '#87CEEB',
-            backgroundColor: 'rgba(135, 206, 235, 0.1)',
-          },
-        }}
-      >
-        Start
-      </Button>
+        <Typography
+          variant="h3"
+          gutterBottom
+          sx={{
+            fontFamily: '"Cinzel", serif',
+            background: 'linear-gradient(180deg, #FFFFFF 0%, #87CEEB 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          Patronus Finder
+        </Typography>
+        <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+          당신의 패트로누스를 찾아보세요
+        </Typography>
+        <Button
+          component={Link}
+          to="/patronus"
+          variant="outlined"
+          sx={{
+            mt: 2,
+            px: 4,
+            py: 1.5,
+            borderColor: 'rgba(135, 206, 235, 0.5)',
+            color: '#87CEEB',
+            fontFamily: '"Cinzel", serif',
+            '&:hover': {
+              borderColor: '#87CEEB',
+              backgroundColor: 'rgba(135, 206, 235, 0.1)',
+            },
+          }}
+        >
+          Start
+        </Button>
+      </Box>
     </Box>
   );
 }
